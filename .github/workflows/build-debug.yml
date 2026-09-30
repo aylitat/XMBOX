@@ -14,6 +14,10 @@ jobs:
   build:
     # 锁到 ubuntu-24.04，避开 2026-10-19 后 ubuntu-latest 迁移到 Ubuntu 26 的突变
     runs-on: ubuntu-24.04
+    env:
+      # 官方 runner 已预装 Android SDK（含 cmdline-tools 与 sdkmanager），无需任何 setup-android action
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -25,16 +29,27 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      # 该 action 负责安装 cmdline-tools 并把 sdkmanager 加入 PATH，必须保留。
-      # 官方 runner 上 sdkmanager 默认不在 PATH，直接调用会 "command not found" (exit 127)。
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      # headless 环境下未接受许可会让 sdkmanager 挂起或直接失败，故先批量接受，再装 compileSdk 36 平台
+      # 安装 compileSdk 36 平台。
+      # 不可用 android-actions/setup-android@v3：它在现代 SDK 上执行 "sdkmanager tools"，
+      # 而 tools 包已被 Google 废弃 -> "Failed to find package 'tools'" -> exit 1，job 直接失败。
+      # 预装的 sdkmanager 不在 PATH 里，必须用绝对路径调用（直接写 sdkmanager 会 command not found）。
       - name: Install Android platform
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platforms;android-36"
+          set -e
+          SDKMGR="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          # 若 latest 目录不存在，退化为取任一已安装版本
+          if [ ! -x "$SDKMGR" ]; then
+            SDKMGR=$(ls -d "$ANDROID_HOME"/cmdline-tools/*/bin/sdkmanager 2>/dev/null | sort -V | tail -1)
+          fi
+          echo "sdkmanager: $SDKMGR"
+          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          if [ -d "$ANDROID_HOME/platforms/android-36" ]; then
+            echo "android-36 已预装，跳过安装"
+            ls "$ANDROID_HOME/platforms"
+          else
+            yes | "$SDKMGR" --licenses > /dev/null || true
+            "$SDKMGR" "platforms;android-36"
+          fi
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
