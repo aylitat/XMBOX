@@ -25,20 +25,21 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      # 安装 Android SDK 命令行工具（目前最新 v3，仍跑在 Node 20，仅弃用警告，不影响运行）
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      # 安装编译所需的 SDK 平台（compileSdk 36）
+      # GitHub runner 镜像已预装 Android SDK 与 cmdline-tools，无需额外 setup action。
+      # headless 环境下未接受许可会让 sdkmanager 挂起或直接失败，故先批量接受。
       - name: Install Android platform
-        run: sdkmanager "platforms;android-36"
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-36"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # debug 构建不需要 keystore / 签名 secrets
-      - name: Build debug APKs
-        run: ./gradlew assembleDebug --stacktrace
+      # debug 无需 keystore / 签名 secrets。
+      # 只编最通用的 mobile + arm64-v8a 单 variant：assembleDebug 会同时构建 3mode x 2abi 共 6 个变体，
+      # 容易触发内存不足或超时，先保证单变体能过。
+      - name: Build debug APK
+        run: ./gradlew assembleMobileArm64_v8aDebug --stacktrace
 
       - name: Collect APKs
         run: |
