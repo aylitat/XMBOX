@@ -25,8 +25,12 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      # GitHub runner 镜像已预装 Android SDK 与 cmdline-tools，无需额外 setup action。
-      # headless 环境下未接受许可会让 sdkmanager 挂起或直接失败，故先批量接受。
+      # 该 action 负责安装 cmdline-tools 并把 sdkmanager 加入 PATH，必须保留。
+      # 官方 runner 上 sdkmanager 默认不在 PATH，直接调用会 "command not found" (exit 127)。
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      # headless 环境下未接受许可会让 sdkmanager 挂起或直接失败，故先批量接受，再装 compileSdk 36 平台
       - name: Install Android platform
         run: |
           yes | sdkmanager --licenses > /dev/null || true
