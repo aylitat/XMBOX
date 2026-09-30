@@ -55,22 +55,23 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       # debug 无需 keystore / 签名 secrets。
-      # 只编最通用的 mobile + arm64-v8a 单 variant：assembleDebug 会同时构建 3mode x 2abi 共 6 个变体，
-      # 容易触发内存不足或超时，先保证单变体能过。
-      - name: Build debug APK
-        run: ./gradlew assembleMobileArm64_v8aDebug --stacktrace
+      # 电视盒子多为 32 位 armeabi-v7a，且只用 64 位包时老盒子会 ABI 不兼容装不上；
+      # 盒子是 Android TV，应使用 leanback(TV 版) 而非 mobile(手机版)。
+      # 故同时编 leanback 的 arm64-v8a 与 armeabi-v7a 两个 ABI 以覆盖新老盒子。
+      - name: Build debug APKs
+        run: ./gradlew assembleLeanbackArm64_v8aDebug assembleLeanbackArmeabi_v7aDebug --stacktrace
 
       - name: Collect APKs
         run: |
           mkdir -p dist
-          for apk in app/build/outputs/apk/**/debug/*.apk; do
-            cp "$apk" dist/ 2>/dev/null || true
-          done
+          # 用 find 递归查找，避免依赖 bash 的 globstar(**) 是否开启
+          find app/build/outputs/apk -name '*.apk' -exec cp {} dist/ \;
+          echo "---- collected APKs ----"
           ls -la dist
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: XMBOX-debug-${{ github.run_number }}
-          path: dist/*.apk
+          path: dist
           if-no-files-found: error
