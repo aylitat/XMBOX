@@ -16,6 +16,7 @@ import com.fongmi.android.tv.utils.FileUtil;
 import com.fongmi.android.tv.utils.Notify;
 import com.fongmi.android.tv.utils.ResUtil;
 import com.fongmi.android.tv.utils.UpdateInstaller;
+import com.fongmi.android.tv.utils.Util;
 import com.github.catvod.net.OkHttp;
 import com.github.catvod.utils.Github;
 import com.github.catvod.utils.Logger;
@@ -57,6 +58,7 @@ public class Updater implements Download.Callback {
     }
 
     public Updater force() {
+        if (Util.isLeanback()) return this;
         Notify.show(R.string.update_check);
         Setting.putUpdate(true);
         return this;
@@ -83,6 +85,10 @@ public class Updater implements Download.Callback {
 
     public void start(Activity activity) {
         if (activity == null || activity.isFinishing() || activity.isDestroyed()) {
+            return;
+        }
+        // TV(leanback)端屏蔽软件更新弹窗
+        if (Util.isLeanback()) {
             return;
         }
         // 使用统一的线程池执行异步检查
