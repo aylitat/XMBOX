@@ -57,16 +57,6 @@ jobs:
 
 ```
 
-## 📥 下载安装
-
-### 最新版本: v3.1.7
-
-| 平台 | ARM64-V8A | ARM V7A |
-|------|-----------|---------|
-| **📱 手机版** | [下载](https://github.com/Tosencen/XMBOX/releases/download/v3.1.6/mobile-arm64_v8a.apk) | [下载](https://github.com/Tosencen/XMBOX/releases/download/v3.1.6/mobile-armeabi_v7a.apk) |
-| **📱 平板版** | [下载](https://github.com/Tosencen/XMBOX/releases/download/v3.1.6/tablet-arm64_v8a.apk) | [下载](https://github.com/Tosencen/XMBOX/releases/download/v3.1.6/tablet-armeabi_v7a.apk) |
-| **📺 TV版** | [下载](https://github.com/Tosencen/XMBOX/releases/download/v3.1.6/leanback-arm64_v8a.apk) | [下载](https://github.com/Tosencen/XMBOX/releases/download/v3.1.6/leanback-armeabi_v7a.apk) |
-
 
 ### 📦 下载说明
 - **最新版本**: 根目录的 `mobile.json` 和 `leanback.json` 包含最新版本信息
