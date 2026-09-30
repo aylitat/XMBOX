@@ -14,7 +14,9 @@
 <img width="1920" height="864" alt="Group 15" src="https://github.com/user-attachments/assets/e69741bd-a21d-417e-ad85-e747032f6daf" />
 
 </div>
+
 ## 自己编译
+
 fork仓库 → actions编译。
 在 fork 网页上直接编译（推荐，无需 keystore）
 启用 Actions：打开你的 fork 页面 → Actions 标签。若提示 "Workflows aren't enabled..."，点 I understand my workflows, go ahead and enable them。
@@ -24,7 +26,9 @@ fork仓库 → actions编译。
 触发构建：Actions → Android Debug Build → Run workflow（分支选 main）。或本地推一个 debug-* tag 也会触发。
 取 APK：跑完后 Actions 页右侧 Artifacts 里下载 XMBOX-debug-<号>.zip，解压即是各 flavor 的 debug APK，可直接装手机/电视（debug 包未签名优化，仅用于验证和自用）。
 build-debug.yml 内容（已写入本地，也可直接复制到网页）：
-```
+
+```code
+
 name: Android Debug Build
 on:
   push:
