@@ -35,6 +35,8 @@ public class Updater implements Download.Callback {
     private Download download;
     private AlertDialog dialog;
     private boolean dev;
+    // 检测更新时使用的本地版本号，设为极大值以屏蔽更新提示
+    private static final String CURRENT_VERSION = "99999";
     private String latestVersion;
     private String releaseApkUrl;
     private String fallbackApkUrl;
@@ -184,7 +186,7 @@ public class Updater implements Download.Callback {
         
         try {
             String[] remoteParts = remoteVersion.split("\\.");
-            String[] localParts = BuildConfig.VERSION_NAME.split("\\.");
+            String[] localParts = CURRENT_VERSION.split("\\.");
             
             int maxLength = Math.max(remoteParts.length, localParts.length);
             
